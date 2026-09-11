@@ -66,6 +66,16 @@ EXCLUIR_LAMPADA = 2
 LUZ_APAGADA = 0
 LUZ_ACESA = 1
 
+# Comandos para manutenção geral de dispositivos
+# Os sensores não tinham eventos para conectar ou desconectar
+# O monitor precisava saber quem estava online em tempo real para não ficar um valor órfão congelado
+# INCLUIR_DISPOSITIVO (10): avisa à thread GeneralControl.py que um novo sensor (ou outro dispositivo
+# genérico) foi registrado naquele ambiente.
+INCLUIR_DISPOSITIVO = 10
+# EXCLUIR_DISPOSITIVO (11): avisa à thread GeneralControl.py que o dispositivo encerrou a conexão,
+# permitindo que o ambiente seja atualizado no monitor.
+EXCLUIR_DISPOSITIVO = 11
+
 # Valores possíveis no sensor de presença
 PRESENCA_NAO_DETECTADA = 0
 PRESENCA_DETECTADA = 1
