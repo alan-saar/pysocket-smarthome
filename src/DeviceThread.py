@@ -57,7 +57,8 @@ def WorkStart(device, msg):
 		deviceType = msg.deviceType
 		msg = MessageStatus()
 		SendMessage(device, msg.pack(0, ERRO_DISPOSITIVO_NAO_SUPORTADO))
-		print(device.toString() + ': Dispositivo não suportado código=({deviceType})');
+        # estava imprimindo o literal código=({deviceType}). Colocar o f' resolveu
+		print(device.toString() + f': Dispositivo não suportado código=({deviceType})')
 		return SM_DESCONECTAR
 
 def WorkSelectRoom(device, msg, controlQueue):
@@ -72,7 +73,7 @@ def WorkSelectRoom(device, msg, controlQueue):
 		device.value = 0
 		device.roomID = roomID
 		device.roomName = roomItem.roomName
-		print(device.toString() + ': Ambiente selecionado = [{device.roomID}] {device.roomName}')
+		print(device.toString() + f': Ambiente selecionado = [{device.roomID}] {device.roomName}')
 		# Enviar o novo ID para o dispositivo
 		msg = MessageStatus()
 		SendMessage(device, msg.pack(device.ID, DISPOSITIVO_REGISTRADO))
@@ -85,13 +86,16 @@ def WorkSelectRoom(device, msg, controlQueue):
 			WaitLampQueue(device)
 			return SM_CONECTADO_LAMPADA
 		else:
+            # quando a lâmpada entrava avisa, mas quando os outros entravam não estava avisando
+			controlQueue.put(MonitorItem(device.ID, device.typeCode, device.roomID, INCLUIR_DISPOSITIVO, None))
 			return SM_CONECTADO_SENSOR
 	else:
 		# Falha na seleção, envia status
 		roomID = f'{msg.roomID}'
 		msg = MessageStatus()
-		sendMessage(device, msg.pack(0, ERRO_AMBIENTE_INVALIDO))
-		print(device.toString() + ': Ambiente inválido (código={roomID})')
+        # typo corrigido. Esvava dando NameError: name 'sendMessage' is not defined
+		SendMessage(device, msg.pack(0, ERRO_AMBIENTE_INVALIDO))
+		print(device.toString() + f': Ambiente inválido (código={roomID})')
 		return SM_DESCONECTAR
 
 def WaitLampQueue(device):
@@ -117,15 +121,16 @@ def WorkLamp(device, msg):
 	if msg.deviceID != device.ID:
 		# ID do dispositivo enviado não é o mesmo que foi registrado
 		msg = MessageStatus()
-		sendMessage(device, msg.pack(device.ID, ERRO_ID_DE_DISPOSITIVO_INVALIDO))
-		print(device.toString() + ': Cliente com ID inválido, esperava {device.ID}, recebi {msg.deviceID}')
+		SendMessage(device, msg.pack(device.ID, ERRO_ID_DE_DISPOSITIVO_INVALIDO))
+		print(device.toString() + f': Cliente com ID inválido, esperava {device.ID}, recebi {msg.deviceID}')
 		return SM_DESCONECTAR
 	# Ao enviar uma solicitação de acionamento recebemos um status de volta
 	if msg.code == MSG_STATUS:
 		if msg.status == ACAO_EXECUTADA:
 			print(device.toString() + ': Ação na lâmpada executada.')
 	else:
-		print(device.toString() + ': Mensagem não esperada (código={device.code})')
+        # estava dando AttributeError. Device não tem o atributo code, o código está na mensagem
+		print(device.toString() + f': Mensagem não esperada (código={msg.code})')
 	WaitLampQueue(device)
 	return SM_CONECTADO_LAMPADA
 
@@ -133,8 +138,8 @@ def WorkSensor(device, msg, controlQueue):
 	if msg.deviceID != device.ID:
 		# ID do dispositivo enviado não é o mesmo que foi registrado
 		msg = MessageStatus()
-		sendMessage(device, msg.pack(device.ID, ERRO_ID_DE_DISPOSITIVO_INVALIDO))
-		print(device.toString() + ': Cliente com ID inválido, esperava {device.ID}, recebi {msg.deviceID}')
+		SendMessage(device, msg.pack(device.ID, ERRO_ID_DE_DISPOSITIVO_INVALIDO))
+		print(device.toString() + f': Cliente com ID inválido, esperava {device.ID}, recebi {msg.deviceID}')
 		return SM_DESCONECTAR
 	# Atualizando os valores recebidos
 	device.value = msg.value
@@ -150,6 +155,11 @@ def WorkSensor(device, msg, controlQueue):
 	# Se um sensor de presença foi acionado, informar ao controle
 	if device.typeCode == COD_SENSOR_PRESENCA:
 		print('Enviando mensagem do sensor para a fila do controle')
+		controlQueue.put(MonitorItem(device.ID, device.typeCode, device.roomID, device.value, None))
+    # A leitura do termômetro era só impressa,
+    # é necessário enviar para o controle central para o monitor mostrar a temperatura e futuramente acione o ar-condicionado
+	elif device.typeCode == COD_TERMOMETRO:
+		print('Enviando mensagem do termômetro para a fila do controle')
 		controlQueue.put(MonitorItem(device.ID, device.typeCode, device.roomID, device.value, None))
 	# Informando que a leitura foi recebida
 	msg = MessageStatus()
@@ -179,7 +189,7 @@ def DeviceThread(connection, clientIP, controlQueue):
 		else:
 			# Máquina de estado do dispositivo
 			#                                               /--> (SM_CONECTADO_SENSOR)
-			# (SM_INCIALIZANDO) --> (SM_SELECIONA AMBIENTE)< 
+			# (SM_INCIALIZANDO) --> (SM_SELECIONA AMBIENTE)<
 			#                                               \--> (SM_CONECTADO_LAMPADA)
 			print("Mensagem recebida: ", clientIP, msg.toString())
 			expectTable = [MSG_REGISTRO,MSG_SELECIONA_AMBIENTE,MSG_SENSOR,MSG_STATUS]
@@ -206,5 +216,8 @@ def DeviceThread(connection, clientIP, controlQueue):
 		if device.typeCode == COD_LAMPADA:
 			# Se for uma lâmpada, remove o dispositivo da lista do ambiente
 			controlQueue.put(MonitorItem(device.ID, device.typeCode, device.roomID, EXCLUIR_LAMPADA, device.lampQueue))
+        # Quando o termômetro ou sensor de presença era removido ele ficava congelado no monitor. Essa linha corrige isso
+		else:
+			controlQueue.put(MonitorItem(device.ID, device.typeCode, device.roomID, EXCLUIR_DISPOSITIVO, None))
 	print(f'Desconectado: {device.clientIP}')
 	connection.close()
