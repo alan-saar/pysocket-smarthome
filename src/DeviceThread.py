@@ -85,6 +85,12 @@ def WorkSelectRoom(device, msg, controlQueue):
 			# Iniciar aguardando solicitação do controle na fila, depois recebemos a mensagem
 			WaitLampQueue(device)
 			return SM_CONECTADO_LAMPADA
+		elif device.typeCode == COD_AR_CONDICIONADO:
+			device.lampQueue = queue.Queue()
+			print('Enviando mensagem de novo ar-condicionado para a fila do controle')
+			controlQueue.put(MonitorItem(device.ID, device.typeCode, device.roomID, INCLUIR_AR_CONDICIONADO, device.lampQueue))
+			WaitAirQueue(device)
+			return SM_CONECTADO_AR_CONDICIONADO
 		else:
             # quando a lâmpada entrava avisa, mas quando os outros entravam não estava avisando
 			controlQueue.put(MonitorItem(device.ID, device.typeCode, device.roomID, INCLUIR_DISPOSITIVO, None))
@@ -133,6 +139,53 @@ def WorkLamp(device, msg):
 		print(device.toString() + f': Mensagem não esperada (código={msg.code})')
 	WaitLampQueue(device)
 	return SM_CONECTADO_LAMPADA
+
+def WaitAirQueue(device):
+	print(f'Aguardando evento, ar-condicionado {device.ID}')
+	targetTemp = TEMP_ALVO_PADRAO
+	while True:
+        # deixei o nome original de lampQueue que já estavam em Device e ControlItem
+        # uma possível melhora semântica seria alterar o nome da variável e fazê-la mais genérica como deviceQueue
+		item = device.lampQueue.get()
+		if isinstance(item, tuple):
+			action, targetTemp = item
+		else:
+			action = item
+        # evita reenvios desnecesários. Não manda ligar se já estiver ligado
+		if device.value != action:
+			device.value = action
+			break
+	if action == AR_LIGADO or action == AR_DESLIGADO:
+		if action == AR_LIGADO:
+			print(device.toString() + f': Ligar ar-condicionado (Temp. Alvo: {targetTemp:.1f} °C)')
+		else:
+			print(device.toString() + ': Desligar ar-condicionado')
+		msg = MessageAirConditioner()
+		SendMessage(device, msg.pack(device.ID, action, targetTemp))
+	else:
+		print(device.toString() + ': Comando inválido para o ar-condicionado')
+		msg = MessageStatus()
+		SendMessage(device, msg.pack(device.ID, ERRO_ACAO_NAO_SUPORTADA))
+
+# tratamento da confirmação do cliente.
+def WorkAir(device, msg):
+    # valida se o id que o cliente enviou está batendo com o id que foi registrado para ele
+    # se for inválido encerra a conexão
+	if msg.deviceID != device.ID:
+		msg = MessageStatus()
+		SendMessage(device, msg.pack(device.ID, ERRO_ID_DE_DISPOSITIVO_INVALIDO))
+		print(device.toString() + f': Cliente com ID inválido, esperava {device.ID}, recebi {msg.deviceID}')
+		return SM_DESCONECTAR
+	# Confirmação da ação executada pelo cliente do ar-condicionado
+    # O cliente recebeu a orde, acionou o hardware e respondeu com sucesso
+	if msg.code == MSG_STATUS:
+		if msg.status == ACAO_EXECUTADA:
+			print(device.toString() + ': Ação no ar-condicionado executada com sucesso.')
+	else:
+		print(device.toString() + f': Mensagem não esperada (código={msg.code})')
+    # volta a escutar a fila por novos eventos térmicos ou comandos
+	WaitAirQueue(device)
+	return SM_CONECTADO_AR_CONDICIONADO
 
 def WorkSensor(device, msg, controlQueue):
 	if msg.deviceID != device.ID:
@@ -189,10 +242,11 @@ def DeviceThread(connection, clientIP, controlQueue):
 		else:
 			# Máquina de estado do dispositivo
 			#                                               /--> (SM_CONECTADO_SENSOR)
-			# (SM_INCIALIZANDO) --> (SM_SELECIONA AMBIENTE)<
-			#                                               \--> (SM_CONECTADO_LAMPADA)
+			# (SM_INCIALIZANDO) --> (SM_SELECIONA AMBIENTE)<---> (SM_CONECTADO_LAMPADA)
+			#                                               \--> (SM_CONECTADO_AR_CONDICIONADO)
 			print("Mensagem recebida: ", clientIP, msg.toString())
-			expectTable = [MSG_REGISTRO,MSG_SELECIONA_AMBIENTE,MSG_SENSOR,MSG_STATUS]
+            # o índice 5 da máquina de estados (SM_CONECTADO_AR_CONDICIONADO) aguarda mensagens do tipo MSG_STATUS
+			expectTable = [MSG_REGISTRO, MSG_SELECIONA_AMBIENTE, MSG_SENSOR, MSG_STATUS, MSG_STATUS]
 			expectMessage = expectTable[deviceStatus-1]
 			# verifica se a mensagem recebida era esperada
 			if expectMessage == msg.code:
@@ -205,6 +259,9 @@ def DeviceThread(connection, clientIP, controlQueue):
 					deviceStatus = WorkLamp(device, msg)
 				elif deviceStatus == SM_CONECTADO_SENSOR:
 					deviceStatus = WorkSensor(device, msg, controlQueue)
+                # integração no loop principal do ar condicionado
+				elif deviceStatus == SM_CONECTADO_AR_CONDICIONADO:
+					deviceStatus = WorkAir(device, msg)
 				if deviceStatus == SM_DESCONECTAR:
 					break
 			else:
@@ -216,6 +273,9 @@ def DeviceThread(connection, clientIP, controlQueue):
 		if device.typeCode == COD_LAMPADA:
 			# Se for uma lâmpada, remove o dispositivo da lista do ambiente
 			controlQueue.put(MonitorItem(device.ID, device.typeCode, device.roomID, EXCLUIR_LAMPADA, device.lampQueue))
+		elif device.typeCode == COD_AR_CONDICIONADO:
+			# Se for um ar-condicionado, remove o dispositivo da lista do ambiente
+			controlQueue.put(MonitorItem(device.ID, device.typeCode, device.roomID, EXCLUIR_AR_CONDICIONADO, device.lampQueue))
         # Quando o termômetro ou sensor de presença era removido ele ficava congelado no monitor. Essa linha corrige isso
 		else:
 			controlQueue.put(MonitorItem(device.ID, device.typeCode, device.roomID, EXCLUIR_DISPOSITIVO, None))

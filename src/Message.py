@@ -16,11 +16,11 @@ def unixTimeStamp():
 	return datetime.timestamp(datetime.now())
 
 #[datahora_unpacked] = struct.unpack('!d', datahora_packed)
-#datahora = datetime.datetime.fromtimestamp(datahora_unpacked)	
+#datahora = datetime.datetime.fromtimestamp(datahora_unpacked)
 
 # Estrutura compartilhada por todas as mensagens
 class Message():
-	code = None		# 1 byte - unsigned char 
+	code = None		# 1 byte - unsigned char
 	dateTime = None	# 8 bytes - double - Timestamp da mensagem
 	subject = None	# Descrição do tipo de mensagem
 	mask = ''		# Máscara usada para obter os dados da mensagem
@@ -282,6 +282,47 @@ class MessageLamp(Message):
 	def unpack(self, msg):
 		code, self.dateTime, self.deviceID, self.action = struct.unpack(self.mask, msg)
 
+# Mensagem do ar condicionado
+# Aproveita o cabeçalho comum de rede (code e dateTime) de Message
+class MessageAirConditioner(Message):
+
+	# Campos da mensagem
+	deviceID = None   # 4 bytes - unsigned int
+	action = None     # 1 byte - unsigned char (0 = Desligar, 1 = Ligar)
+    # temperatura desejada em float (4 bytes)
+	targetTemp = None # 4 bytes - float (temperatura alvo)
+
+	def __init__(self):
+		self.code = MSG_AR_CONDICIONADO # 7
+		self.mask = '!BdIBf'
+		self.subject = 'Ar-Condicionado'
+
+	def toStringMsg(self):
+		if(self.deviceID != None and self.action != None and self.targetTemp != None):
+			actionStr = "Ligar" if self.action == AR_LIGADO else "Desligar"
+			return f"Ação: {self.action} ({actionStr}), Temp. Alvo: {self.targetTemp:.1f} °C"
+		else:
+			return 'Mensagem não inicializada'
+
+	# ! network (= big-endian)
+	# B unsigned char (codigo) - 1 byte
+	# d double (datahora) - 8 bytes
+	# I unsigned int (devID) - 4 bytes
+	# B unsigned char (acao) - 1 byte
+	# f float (tempAlvo) - 4 bytes
+	# Total = 18 bytes
+	def pack(self, deviceID, action, targetTemp=TEMP_ALVO_PADRAO):
+		self.dateTime = unixTimeStamp()
+		self.deviceID = deviceID
+		self.action = action
+		self.targetTemp = float(targetTemp)
+        # sequencia pura de 18 bytes binários pronta para ser transmitida pelo socket TCP
+		return struct.pack(self.mask, self.code, self.dateTime, self.deviceID, self.action, self.targetTemp)
+
+	def unpack(self, msg):
+        # pega os 18 bytes recebidos da rede e decodifica de volta nos atributos do objeto python
+		code, self.dateTime, self.deviceID, self.action, self.targetTemp = struct.unpack(self.mask, msg)
+
 # cria um objeto contendo a primeira mensagem do buffer
 # retorna (1) None se não existir uma mensagem completa ou buffer vazio
 #         (2) o que restou no buffer após retirar a primeira mensagem
@@ -291,9 +332,12 @@ def getMessage(buffer):
 	codeBin = buffer[:1]
 	if len(codeBin) == 1:
 		code, = struct.unpack('!B', codeBin)
-		if code >= 1 and code <= 6:
+        # add o código 7 do ar-condicionado
+		if code >= 1 and code <= 7:
 			# tamanho de cada tipo de mensagem
-			msgsSize = [15,10,11,11,17,14]
+            # add o tamanho de 18 bytes na posição 7. Quando o primeiro byte lido for 7, a função
+            # sabe que precisa esperar exatamente 18 bytes acumulados no buffer TCP antes de tentar decodificar
+			msgsSize = [15,10,11,11,17,14,18]
 			msgSize = msgsSize[code-1]
 			# caso especial, mensagem com a lista possui tamanho variável
 			if code == MSG_LISTA_AMBIENTES:
@@ -319,12 +363,17 @@ def getMessage(buffer):
 				msg = MessageSensor()
 			if code == MSG_LAMPADA:
 				msg = MessageLamp()
+			if code == MSG_AR_CONDICIONADO:
+				msg = MessageAirConditioner()
 			# decodifica a mensagem recebida
 			msg.unpack(msgData)
 		else:
 			# remove o código inválido
 			buffer = buffer[1:]
-		print('retornando mensagem codigo>', msg.code)
+        # Para evitar o erro AttributeError: 'NoneType' object has no attribute 'code'
+        # que acontece quando chega um byte corrompido ou codigo inválido e linha acessava msg.code sem checar
+		if msg != None:
+			print('retornando mensagem codigo>', msg.code)
 	return msg, buffer
 
 # Recebe uma mensagem e retorna o objeto com os dados

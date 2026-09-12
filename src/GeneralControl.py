@@ -80,7 +80,31 @@ def GeneralControl(controlQueue, roomsList, typesList):
 				else:
 					# Leitura de temperatura recebida
 					roomItem.UpdateTemperature(monitorItem.deviceID, monitorItem.command)
-					eventDesc = f"Temperatura lida: {float(monitorItem.command):.1f} °C (Termômetro #{monitorItem.deviceID}) no ambiente [{roomItem.roomID}] {roomItem.roomName}"
+                    # mudança par ao ar-condicinado
+                    # quando o termômetro envia uma nova leitura para a fila central, além de salvar a temperatura do cômodo,
+                    # o servidor agora verifica se há algum aparelho de ar-condicionado instalado no mesmo ambiente para disparar a automação
+					temp_val = float(monitorItem.command)
+					eventDesc = f"Temperatura lida: {temp_val:.1f} °C (Termômetro #{monitorItem.deviceID}) no ambiente [{roomItem.roomID}] {roomItem.roomName}"
+					# Automação Integrada do Ar-Condicionado baseada na temperatura do ambiente
+                    # se houver algum ar-condicionado e a temperatura estiver acima do limite manda ligar,
+                    # e se estiver frio manda desligar
+					if len(roomItem.airQueueList) > 0:
+						if temp_val > TEMP_LIMIAR_LIGAR:
+							roomItem.SetAirConditioner(AR_LIGADO, TEMP_ALVO_PADRAO)
+							eventDesc += f" | [AUTOMAÇÃO] Ar-Condicionado LIGADO (Temp {temp_val:.1f} °C > {TEMP_LIMIAR_LIGAR:.1f} °C)"
+						elif temp_val <= TEMP_LIMIAR_DESLIGAR:
+							roomItem.SetAirConditioner(AR_DESLIGADO, TEMP_ALVO_PADRAO)
+							eventDesc += f" | [AUTOMAÇÃO] Ar-Condicionado DESLIGADO (Temp {temp_val:.1f} °C <= {TEMP_LIMIAR_DESLIGAR:.1f} °C)"
+
+			# AR-CONDICIONADO <- Inclusão ou remoção do atuador
+            # trata os eventos de conexão e desconexão dos clientes do tipo Ar-Condicionado que chegam pela fila central
+			elif monitorItem.deviceTypeCode == COD_AR_CONDICIONADO:
+				if monitorItem.command == INCLUIR_AR_CONDICIONADO:
+					roomItem.AddAirConditioner(monitorItem.deviceID, monitorItem.lampQueue)
+					eventDesc = f"Ar-Condicionado #{monitorItem.deviceID} conectado e registrado no ambiente [{roomItem.roomID}] {roomItem.roomName}"
+				elif monitorItem.command == EXCLUIR_AR_CONDICIONADO:
+					roomItem.DelAirConditioner(monitorItem.deviceID)
+					eventDesc = f"Ar-Condicionado #{monitorItem.deviceID} desconectado do ambiente [{roomItem.roomID}] {roomItem.roomName}"
 
 			# Outros dispositivos
 			elif monitorItem.command == INCLUIR_DISPOSITIVO:
