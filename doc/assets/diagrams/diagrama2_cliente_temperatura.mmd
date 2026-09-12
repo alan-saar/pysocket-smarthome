@@ -1,0 +1,65 @@
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'darkMode': true,
+    'background': '#030a16',
+    'primaryColor': '#021424',
+    'primaryTextColor': '#ffffff',
+    'primaryBorderColor': '#00f3ff',
+    'lineColor': '#00e1ff',
+    'actorBkg': '#021424',
+    'actorBorder': '#00f3ff',
+    'actorTextColor': '#ffffff',
+    'actorLineColor': '#007799',
+    'signalColor': '#00f3ff',
+    'signalTextColor': '#e6ffff',
+    'labelBoxBkgColor': '#041424',
+    'labelBoxBorderColor': '#00f3ff',
+    'labelTextColor': '#00f3ff',
+    'noteBkgColor': '#051e33',
+    'noteTextColor': '#d6faff',
+    'noteBorderColor': '#00f3ff',
+    'activationBkgColor': '#00e1ff',
+    'activationBorderColor': '#00ffff'
+  }
+}}%%
+sequenceDiagram
+    autonumber
+    actor U as Usuário / Sensor
+    participant C as Cliente Termômetro
+    participant T as DeviceThread (Servidor)
+    participant Q as controlQueue
+    participant G as GeneralControl
+    participant M as Monitor Residencial
+
+    Note over C,T: Conexão e Registro Prévios Realizados
+
+    U->>C: Digita temperatura (ex: 26.5 °C)
+    C->>C: Verifica se houve mudança de valor
+    alt Temperatura alterada
+        C->>T: TCP send(MSG_SENSOR: devID, valor=26.5)
+        activate T
+        T->>T: Valida devID registrado
+        alt Dispositivo Registrado
+            T->>Q: put(MonitorItem: devID, 'T', roomID, valor)
+            T->>C: TCP send(MSG_STATUS: devID, status=LEITURA_RECEBIDA)
+            deactivate T
+            C->>U: Exibe "Leitura recebida pelo servidor!!!"
+            
+            activate G
+            Q->>G: get(MonitorItem)
+            G->>G: roomItem.UpdateTemperature(devID, 26.5)
+            alt Temp > 24.0 °C e Ar instalado no cômodo
+                G->>G: Dispara roomItem.SetAirConditioner(LIGAR)
+            else Temp <= 22.0 °C e Ar instalado no cômodo
+                G->>G: Dispara roomItem.SetAirConditioner(DESLIGAR)
+            end
+            G->>M: RenderMonitor(GetRoomDict())
+            deactivate G
+        else Dispositivo Não Registrado
+            T->>C: TCP send(MSG_STATUS: status=ERRO_DISPOSITIVO_NAO_REGISTRADO)
+            C->>U: Exibe "Falha, status = 4"
+        end
+    else Mesma temperatura anterior
+        C->>C: Descarta (não envia pacote redundante)
+    end
