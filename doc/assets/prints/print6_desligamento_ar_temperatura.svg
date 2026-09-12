@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 548" width="820" height="548">
+  <defs>
+    <style>
+      .term-text { font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace; font-size: 13px; fill: #e0e0e0; }
+      .term-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; fill: #999; }
+    </style>
+  </defs>
+  <rect width="820" height="548" rx="8" ry="8" fill="#141414" stroke="#333" stroke-width="1"/>
+  <rect width="820" height="32" rx="8" ry="8" fill="#222"/>
+  <rect y="24" width="820" height="8" fill="#222"/>
+  <circle cx="18" cy="16" r="5.5" fill="#ff5f56"/>
+  <circle cx="36" cy="16" r="5.5" fill="#ffbd2e"/>
+  <circle cx="54" cy="16" r="5.5" fill="#27c93f"/>
+  <text x="410" y="20" class="term-title" text-anchor="middle">terminal - desligamento do ar por temperatura amena</text>
+  <text x="20" y="52" class="term-text" fill="#4fc1ff">$ python3 Cliente_Temperatura.py</text>
+  <text x="20" y="70" class="term-text" fill="#e0e0e0">Temperatura lida no sensor: 21.5</text>
+  <text x="20" y="88" class="term-text" fill="#e0e0e0">Enviando temperatura: 21.5 °C (Abaixo do limiar de 22.0 °C)</text>
+  <text x="20" y="106" class="term-text" fill="#e0e0e0">Leitura recebida pelo servidor!!!</text>
+  <text x="20" y="124" class="term-text" fill="#e0e0e0"></text>
+  <text x="20" y="142" class="term-text" fill="#e0e0e0">--- Efeito no Cliente_ArCondicionado.py ---</text>
+  <text x="20" y="160" class="term-text" fill="#e0e0e0">Comando de climatização recebido do servidor!</text>
+  <text x="20" y="178" class="term-text" fill="#e0e0e0">=============================================</text>
+  <text x="20" y="196" class="term-text" fill="#7ee787">        &gt;&gt;&gt; AR-CONDICIONADO DESLIGADO &lt;&lt;&lt;    </text>
+  <text x="20" y="214" class="term-text" fill="#e0e0e0">          Modo: Standby / Desligado          </text>
+  <text x="20" y="232" class="term-text" fill="#e0e0e0">=============================================</text>
+  <text x="20" y="250" class="term-text" fill="#e0e0e0">Confirmação [Ação Executada] enviada ao servidor.</text>
+  <text x="20" y="268" class="term-text" fill="#e0e0e0"></text>
+  <text x="20" y="286" class="term-text" fill="#e0e0e0">--- Atualização no Monitor do Servidor ---</text>
+  <text x="20" y="304" class="term-text" fill="#79c0ff">+==================================================================+</text>
+  <text x="20" y="322" class="term-text" fill="#79c0ff">| ULTIMO EVENTO: Temp 21.5 °C | [AUTOMAÇÃO] Ar-Condicionado DESLIG |</text>
+  <text x="20" y="340" class="term-text" fill="#79c0ff">+------------------------------------------------------------------+</text>
+  <text x="20" y="358" class="term-text" fill="#79c0ff">+------------------------------------------------------------------+</text>
+  <text x="20" y="376" class="term-text" fill="#79c0ff">| AMBIENTE [01] - SALA                                             |</text>
+  <text x="20" y="394" class="term-text" fill="#79c0ff">+------------------------------------------------------------------+</text>
+  <text x="20" y="412" class="term-text" fill="#79c0ff">| [TERMOMETRO]  21.5 C (Sensor ID: 3)                              |</text>
+  <text x="20" y="430" class="term-text" fill="#7ee787">| [PRESENCA]    DETECTADA [!] (Sensor ID: 2)                       |</text>
+  <text x="20" y="448" class="term-text" fill="#7ee787">| [LAMPADAS]    Lampada #1: [ACESA]                                |</text>
+  <text x="20" y="466" class="term-text" fill="#7ee787">| [AR-CONDIC.]  Ar #4: [DESLIGADO]                                 |</text>
+  <text x="20" y="484" class="term-text" fill="#79c0ff">| [DISPOSITIVOS] Total: 4 | IDs: #1, #2, #3, #4                    |</text>
+  <text x="20" y="502" class="term-text" fill="#79c0ff">+------------------------------------------------------------------+</text>
+</svg>

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 818" width="820" height="818">
+  <defs>
+    <style>
+      .term-text { font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace; font-size: 13px; fill: #e0e0e0; }
+      .term-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; fill: #999; }
+    </style>
+  </defs>
+  <rect width="820" height="818" rx="8" ry="8" fill="#141414" stroke="#333" stroke-width="1"/>
+  <rect width="820" height="32" rx="8" ry="8" fill="#222"/>
+  <rect y="24" width="820" height="8" fill="#222"/>
+  <circle cx="18" cy="16" r="5.5" fill="#ff5f56"/>
+  <circle cx="36" cy="16" r="5.5" fill="#ffbd2e"/>
+  <circle cx="54" cy="16" r="5.5" fill="#27c93f"/>
+  <text x="410" y="20" class="term-title" text-anchor="middle">terminal - servidor (inicialização)</text>
+  <text x="20" y="52" class="term-text" fill="#4fc1ff">$ python3 Server.py</text>
+  <text x="20" y="70" class="term-text" fill="#e0e0e0">Inicializando o servidor</text>
+  <text x="20" y="88" class="term-text" fill="#e0e0e0">Carregando tabelas...</text>
+  <text x="20" y="106" class="term-text" fill="#e0e0e0">----------------------------------------------</text>
+  <text x="20" y="124" class="term-text" fill="#e0e0e0">Carregando tabela do sistema: ambientes.txt</text>
+  <text x="20" y="142" class="term-text" fill="#e0e0e0">----------------------------------------------</text>
+  <text x="20" y="160" class="term-text" fill="#e0e0e0">1 Sala</text>
+  <text x="20" y="178" class="term-text" fill="#e0e0e0">2 Quarto 1</text>
+  <text x="20" y="196" class="term-text" fill="#e0e0e0">3 Quarto 2</text>
+  <text x="20" y="214" class="term-text" fill="#e0e0e0">4 Quarto 3</text>
+  <text x="20" y="232" class="term-text" fill="#e0e0e0">5 Suite</text>
+  <text x="20" y="250" class="term-text" fill="#e0e0e0">... (15 ambientes carregados)</text>
+  <text x="20" y="268" class="term-text" fill="#e0e0e0">----------------------------------------------</text>
+  <text x="20" y="286" class="term-text" fill="#e0e0e0">Carregando tabela do sistema: dispositivos.txt</text>
+  <text x="20" y="304" class="term-text" fill="#e0e0e0">----------------------------------------------</text>
+  <text x="20" y="322" class="term-text" fill="#e0e0e0">1 Lâmpada</text>
+  <text x="20" y="340" class="term-text" fill="#e0e0e0">2 Sensor de Presença</text>
+  <text x="20" y="358" class="term-text" fill="#e0e0e0">3 Termômetro</text>
+  <text x="20" y="376" class="term-text" fill="#e0e0e0">4 Ar-Condicionado</text>
+  <text x="20" y="394" class="term-text" fill="#e0e0e0">----------------------------------------------</text>
+  <text x="20" y="412" class="term-text" fill="#e0e0e0">Iniciando o controle.</text>
+  <text x="20" y="430" class="term-text" fill="#79c0ff">+--------------------------------------------+</text>
+  <text x="20" y="448" class="term-text" fill="#79c0ff">|  Trabalho 01 - Sockets                     |</text>
+  <text x="20" y="466" class="term-text" fill="#79c0ff">|  Disciplina: Redes de Computadores PPComp  |</text>
+  <text x="20" y="484" class="term-text" fill="#79c0ff">+--------------------------------------------+</text>
+  <text x="20" y="502" class="term-text" fill="#e0e0e0">Servidor inicializado.</text>
+  <text x="20" y="520" class="term-text" fill="#e0e0e0">Aguardando conexões dos dispositivos...</text>
+  <text x="20" y="538" class="term-text" fill="#e0e0e0"></text>
+  <text x="20" y="556" class="term-text" fill="#79c0ff">+==================================================================+</text>
+  <text x="20" y="574" class="term-text" fill="#79c0ff">| MONITOR RESIDENCIAL - SMART HOME                                 |</text>
+  <text x="20" y="592" class="term-text" fill="#79c0ff">| Status em tempo real | 12/09/2026, 17:15:00                      |</text>
+  <text x="20" y="610" class="term-text" fill="#79c0ff">+==================================================================+</text>
+  <text x="20" y="628" class="term-text" fill="#79c0ff">| ULTIMO EVENTO: Servidor inicializado. Monitor ativo              |</text>
+  <text x="20" y="646" class="term-text" fill="#79c0ff">+------------------------------------------------------------------+</text>
+  <text x="20" y="664" class="term-text" fill="#79c0ff">+------------------------------------------------------------------+</text>
+  <text x="20" y="682" class="term-text" fill="#79c0ff">| NENHUM DISPOSITIVO ATIVO NO MOMENTO                              |</text>
+  <text x="20" y="700" class="term-text" fill="#79c0ff">| Aguardando conexao de sensores e atuadores...                    |</text>
+  <text x="20" y="718" class="term-text" fill="#79c0ff">+------------------------------------------------------------------+</text>
+  <text x="20" y="736" class="term-text" fill="#e0e0e0"></text>
+  <text x="20" y="754" class="term-text" fill="#e0e0e0">Ambientes ociosos (15): Sala, Quarto 1, Quarto 2, Quarto 3, Suite...</text>
+  <text x="20" y="772" class="term-text" fill="#79c0ff">+==================================================================+</text>
+</svg>

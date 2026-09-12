@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 512" width="820" height="512">
+  <defs>
+    <style>
+      .term-text { font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace; font-size: 13px; fill: #e0e0e0; }
+      .term-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; fill: #999; }
+    </style>
+  </defs>
+  <rect width="820" height="512" rx="8" ry="8" fill="#141414" stroke="#333" stroke-width="1"/>
+  <rect width="820" height="32" rx="8" ry="8" fill="#222"/>
+  <rect y="24" width="820" height="8" fill="#222"/>
+  <circle cx="18" cy="16" r="5.5" fill="#ff5f56"/>
+  <circle cx="36" cy="16" r="5.5" fill="#ffbd2e"/>
+  <circle cx="54" cy="16" r="5.5" fill="#27c93f"/>
+  <text x="410" y="20" class="term-title" text-anchor="middle">terminal - teste de erro: dispositivo não suportado</text>
+  <text x="20" y="52" class="term-text" fill="#4fc1ff">$ python3 -c &#x27;</text>
+  <text x="20" y="70" class="term-text" fill="#e0e0e0">  import socket</text>
+  <text x="20" y="88" class="term-text" fill="#e0e0e0">  from Message import MessageRegister, ReceiveMessage</text>
+  <text x="20" y="106" class="term-text" fill="#e0e0e0">  from Device import Device</text>
+  <text x="20" y="124" class="term-text" fill="#e0e0e0">  s = socket.socket()</text>
+  <text x="20" y="142" class="term-text" fill="#e0e0e0">  s.connect((&quot;localhost&quot;, 5000))</text>
+  <text x="20" y="160" class="term-text" fill="#e0e0e0">  dev = Device(s, 99) # Tipo 99: NÃO SUPORTADO</text>
+  <text x="20" y="178" class="term-text" fill="#e0e0e0">  s.send(MessageRegister().pack(99))</text>
+  <text x="20" y="196" class="term-text" fill="#e0e0e0">  resp = ReceiveMessage(s, dev)</text>
+  <text x="20" y="214" class="term-text" fill="#e0e0e0">  print(&quot;Resposta do servidor:&quot;, resp.toStringMsg())</text>
+  <text x="20" y="232" class="term-text" fill="#e0e0e0">  s.close()</text>
+  <text x="20" y="250" class="term-text" fill="#e0e0e0">&#x27;</text>
+  <text x="20" y="268" class="term-text" fill="#e0e0e0"></text>
+  <text x="20" y="286" class="term-text" fill="#e0e0e0">[CLIENTE] Enviando registro com tipo = 99 (Dispositivo Não Suportado)...</text>
+  <text x="20" y="304" class="term-text" fill="#ff7b72">[CLIENTE] Resposta do servidor: Dispositivo: 0, Status: [5] Tipo de dispositivo não suportado</text>
+  <text x="20" y="322" class="term-text" fill="#e0e0e0">[CLIENTE] Conexão encerrada pelo servidor.</text>
+  <text x="20" y="340" class="term-text" fill="#e0e0e0"></text>
+  <text x="20" y="358" class="term-text" fill="#e0e0e0">--- Log no Terminal do Servidor ---</text>
+  <text x="20" y="376" class="term-text" fill="#e0e0e0">Cliente conectado: (&#x27;127.0.0.1&#x27;, 49822)</text>
+  <text x="20" y="394" class="term-text" fill="#e0e0e0">Conectado:  (&#x27;127.0.0.1&#x27;, 49822)</text>
+  <text x="20" y="412" class="term-text" fill="#e0e0e0">Mensagem recebida: (&#x27;127.0.0.1&#x27;, 49822) [12/09/2026, 17:15:20] 2: Registro, Tipo: 99</text>
+  <text x="20" y="430" class="term-text" fill="#e0e0e0">Enviando mensagem: (&#x27;127.0.0.1&#x27;, 49822)</text>
+  <text x="20" y="448" class="term-text" fill="#ff7b72">Dispositivo0: Dispositivo não suportado código=(99)</text>
+  <text x="20" y="466" class="term-text" fill="#e0e0e0">Desconectado: (&#x27;127.0.0.1&#x27;, 49822)</text>
+</svg>
