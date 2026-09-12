@@ -43,6 +43,8 @@ NUM_SENSOR_PRESENCA = 2
 COD_SENSOR_PRESENCA = 'S'
 NUM_TERMOMETRO = 3
 COD_TERMOMETRO = 'T'
+NUM_AR_CONDICIONADO = 4
+COD_AR_CONDICIONADO = 'A'
 
 # Códigos das mensagens
 MSG_NULL = 0
@@ -52,6 +54,7 @@ MSG_LISTA_AMBIENTES = 3
 MSG_SELECIONA_AMBIENTE = 4
 MSG_SENSOR = 5
 MSG_LAMPADA = 6
+MSG_AR_CONDICIONADO = 7
 
 # Máquina de estados do cliente conectado
 SM_DESCONECTAR = 0
@@ -59,12 +62,24 @@ SM_INICIALIZANDO = 1
 SM_SELECIONA_AMBIENTE = 2
 SM_CONECTADO_SENSOR = 3
 SM_CONECTADO_LAMPADA = 4
+SM_CONECTADO_AR_CONDICIONADO = 5
 
 # Comandos para fazer manutenção da lista de lâmpadas conectadas
 INCLUIR_LAMPADA = 1
 EXCLUIR_LAMPADA = 2
 LUZ_APAGADA = 0
 LUZ_ACESA = 1
+
+# Comandos para fazer manutenção da lista de ar-condicionados conectados
+INCLUIR_AR_CONDICIONADO = 3
+EXCLUIR_AR_CONDICIONADO = 4
+AR_DESLIGADO = 0
+AR_LIGADO = 1
+
+# Limiares de temperatura para automação integrada do Ar-Condicionado
+TEMP_LIMIAR_LIGAR = 24.0     # Acima de 24.0 °C liga o Ar-Condicionado
+TEMP_LIMIAR_DESLIGAR = 22.0  # Em 22.0 °C ou menos desliga o Ar-Condicionado
+TEMP_ALVO_PADRAO = 22.0      # Temperatura alvo padrão ajustada no aparelho
 
 # Comandos para manutenção geral de dispositivos
 # Os sensores não tinham eventos para conectar ou desconectar
