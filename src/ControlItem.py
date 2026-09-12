@@ -139,6 +139,38 @@ class RoomItem():
 				lampQueue.put(int(command))
 			self.lampStates[deviceID] = int(command)
 
+	# Incluir novo ar-condicionado na lista
+    # Esse método será chamado pela thread do GeneralControl quando recebe o comando INCLUIR_AR_CONDICIONADO,
+    # recebendo um deviceID e a fila airQueue threadsafe para envio assíncro de comandos
+	def AddAirConditioner(self, deviceID, airQueue):
+		print(f'Adicionando Ar-Condicionado ID={deviceID} no ambiente {self.roomName}')
+		self.airQueueList.update({deviceID: airQueue})
+		self.airStates[deviceID] = AR_DESLIGADO
+		self.devices[deviceID] = COD_AR_CONDICIONADO
+
+	# Remover um ar-condicionado da lista
+    # Chamado quando o cliente do ar encerra a conexão.
+    # remove a fila de comandos, o estado e o id do catálogo do cômodo
+	def DelAirConditioner(self, deviceID):
+		print(f'Removendo Ar-Condicionado ID={deviceID} do ambiente {self.roomName}')
+		if deviceID in self.airQueueList:
+			self.airQueueList.pop(deviceID)
+		if deviceID in self.airStates:
+			self.airStates.pop(deviceID)
+		if deviceID in self.devices:
+			self.devices.pop(deviceID)
+		return len(self.airQueueList)
+
+	# Envia comando de climatização para todos os aparelhos de ar-condicionado do ambiente
+    # itera por todos os aparelhos instalados no ambiente inserindo uma tupla (ação,temperatura)
+    # na fila da thread do DeviceThread responsável por aquele cliente
+	def SetAirConditioner(self, action, targetTemp=TEMP_ALVO_PADRAO):
+		for deviceID, airQueue in self.airQueueList.items():
+			if airQueue is not None:
+				airQueue.put((int(action), float(targetTemp)))
+            # atualiza o estado em memória para o monitor refletir imediatamente a nova condição
+			self.airStates[deviceID] = int(action)
+
 # Objeto contendo os tipos catalogados
 class TypeItem():
 	typeID = ''    # ID do tipo

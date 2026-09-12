@@ -137,14 +137,18 @@ def RenderMonitor(roomDict, lastEventDesc=""):
 			else:
 				lines.append(_box_line("[LAMPADAS]    -- (Nenhuma lampada instalada)"))
 
-			# 4. Indicador de Ar-Condicionado (suporte futuro e extensibilidade)
+			# 4. Indicador de Ar-Condicionado
 			if hasattr(room, 'airQueueList') and len(room.airQueueList) > 0:
+                # lista vazia para acumular as descrições textuais de cada aparelho do cômodo
 				air_desc = []
 				for dev_id in sorted(room.airQueueList.keys()):
-					state = getattr(room, 'airStates', {}).get(dev_id, 0)
-					state_str = "LIGADO" if state == 1 else "DESLIGADO"
+					state = getattr(room, 'airStates', {}).get(dev_id, AR_DESLIGADO)
+					state_str = "LIGADO" if state == AR_LIGADO else "DESLIGADO"
 					air_desc.append(f"Ar #{dev_id}: [{state_str}]")
+                # a _box_line ajusta o espaçamento até atingir exatamente os 68 caracteres definidos no monitor
 				lines.append(_box_line("[AR-CONDIC.]  " + " | ".join(air_desc)))
+			else:
+				lines.append(_box_line("[AR-CONDIC.]  -- (Nenhum ar-condicionado instalado)"))
 
 			# 5. Resumo de dispositivos no ambiente
 			total_devs = getattr(room, 'countDevices', lambda: len(room.lampQueueList))()
