@@ -1,0 +1,57 @@
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'darkMode': true,
+    'background': '#030a16',
+    'primaryColor': '#021424',
+    'primaryTextColor': '#ffffff',
+    'primaryBorderColor': '#00f3ff',
+    'lineColor': '#00e1ff',
+    'actorBkg': '#021424',
+    'actorBorder': '#00f3ff',
+    'actorTextColor': '#ffffff',
+    'actorLineColor': '#007799',
+    'signalColor': '#00f3ff',
+    'signalTextColor': '#e6ffff',
+    'labelBoxBkgColor': '#041424',
+    'labelBoxBorderColor': '#00f3ff',
+    'labelTextColor': '#00f3ff',
+    'noteBkgColor': '#051e33',
+    'noteTextColor': '#d6faff',
+    'noteBorderColor': '#00f3ff',
+    'activationBkgColor': '#00e1ff',
+    'activationBorderColor': '#00ffff'
+  }
+}}%%
+sequenceDiagram
+    autonumber
+    actor U as Usuário / Sensor
+    participant C as Cliente Sensor Presença
+    participant T as DeviceThread (Presença)
+    participant Q as controlQueue
+    participant G as GeneralControl
+    participant LQ as lampQueueList (Lâmpadas)
+    participant M as Monitor Residencial
+
+    Note over C,T: Conexão e Registro Prévios Realizados
+
+    U->>C: Informa presença (1 = Detectada, 0 = Ausente)
+    C->>T: TCP send(MSG_SENSOR: devID, valor=1)
+    activate T
+    T->>T: Valida devID registrado
+    alt Dispositivo Registrado
+        T->>Q: put(MonitorItem: devID, 'S', roomID, comando=1)
+        T->>C: TCP send(MSG_STATUS: devID, status=LEITURA_RECEBIDA)
+        deactivate T
+        C->>U: Exibe "Leitura recebida pelo servidor!!!"
+
+        activate G
+        Q->>G: get(MonitorItem)
+        G->>G: roomItem.UpdatePresence(devID, 1)
+        G->>LQ: roomItem.Sensor(1) -> put(1) em todas as lâmpadas do cômodo
+        G->>M: RenderMonitor(GetRoomDict())
+        deactivate G
+    else Dispositivo Não Registrado
+        T->>C: TCP send(MSG_STATUS: status=ERRO_DISPOSITIVO_NAO_REGISTRADO)
+        C->>U: Exibe "Falha, status = 4"
+    end

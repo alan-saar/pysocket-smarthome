@@ -1,0 +1,65 @@
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'darkMode': true,
+    'background': '#030a16',
+    'primaryColor': '#021424',
+    'primaryTextColor': '#ffffff',
+    'primaryBorderColor': '#00f3ff',
+    'lineColor': '#00e1ff',
+    'secondaryColor': '#041424',
+    'tertiaryColor': '#020d18'
+  }
+}}%%
+flowchart TB
+    subgraph Clientes["Dispositivos Clientes (Rede TCP)"]
+        CT["Cliente Termômetro"]
+        CP["Cliente Sensor Presença"]
+        CL["Cliente Lâmpada"]
+        CA["Cliente Ar-Condicionado"]
+    end
+
+    subgraph Servidor["Servidor Central (Server.py)"]
+        TP["Thread Principal\n(socket.accept)"]
+
+        subgraph DeviceThreads["Threads Individuais por Conexão"]
+            TT["DeviceThread\n(Termômetro)"]
+            TPres["DeviceThread\n(Presença)"]
+            TLamp["DeviceThread\n(Lâmpada)"]
+            TAir["DeviceThread\n(Ar-Condicionado)"]
+        end
+
+        subgraph Filas["Filas Thread-Safe (queue.Queue)"]
+            CQ["controlQueue\n(Fila Central de Controle)"]
+            LQ["lampQueue\n(Fila da Lâmpada)"]
+            AQ["airQueue\n(Fila do Ar-Condicionado)"]
+        end
+
+        subgraph Controle["Controle e Visualização"]
+            GC["Thread GeneralControl\n(Gerenciamento de Ambientes)"]
+            MON["Monitor Residencial ASCII\n(Renderização em Tempo Real)"]
+        end
+    end
+
+    CT <-->|"TCP Socket\n(MSG_SENSOR)"| TT
+    CP <-->|"TCP Socket\n(MSG_SENSOR)"| TPres
+    CL <-->|"TCP Socket\n(MSG_LAMPADA)"| TLamp
+    CA <-->|"TCP Socket\n(MSG_AR_CONDICIONADO)"| TAir
+
+    TP -->|"accept() -> cria thread"| TT
+    TP -->|"accept() -> cria thread"| TPres
+    TP -->|"accept() -> cria thread"| TLamp
+    TP -->|"accept() -> cria thread"| TAir
+
+    TT -->|"Leitura de Temp\nMonitorItem"| CQ
+    TPres -->|"Detecção Presença\nMonitorItem"| CQ
+    TLamp -->|"Inclusão/Exclusão\nMonitorItem"| CQ
+    TAir -->|"Inclusão/Exclusão\nMonitorItem"| CQ
+
+    CQ -->|"get() comando"| GC
+    GC -->|"Presença detectada\nComando Ligar/Desligar"| LQ
+    GC -->|"Temp > 24°C ou <= 22°C\nComando Climatização"| AQ
+    GC -->|"Atualiza Estado"| MON
+
+    LQ -->|"get() evento"| TLamp
+    AQ -->|"get() evento"| TAir
