@@ -1,0 +1,54 @@
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'darkMode': true,
+    'background': '#030a16',
+    'primaryColor': '#021424',
+    'primaryTextColor': '#ffffff',
+    'primaryBorderColor': '#00f3ff',
+    'lineColor': '#00e1ff',
+    'actorBkg': '#021424',
+    'actorBorder': '#00f3ff',
+    'actorTextColor': '#ffffff',
+    'actorLineColor': '#007799',
+    'signalColor': '#00f3ff',
+    'signalTextColor': '#e6ffff',
+    'labelBoxBkgColor': '#041424',
+    'labelBoxBorderColor': '#00f3ff',
+    'labelTextColor': '#00f3ff',
+    'noteBkgColor': '#051e33',
+    'noteTextColor': '#d6faff',
+    'noteBorderColor': '#00f3ff',
+    'activationBkgColor': '#00e1ff',
+    'activationBorderColor': '#00ffff'
+  }
+}}%%
+sequenceDiagram
+    autonumber
+    participant G as GeneralControl (Automação)
+    participant Q as Fila do Atuador (lampQueue / airQueue)
+    participant T as DeviceThread (Servidor)
+    participant C as Cliente Atuador (Lâmpada / Ar-Condicionado)
+
+    Note over T: Thread em loop bloqueante WaitQueue()
+
+    G->>Q: put(comando de acionamento)
+    activate T
+    Q->>T: get(comando)
+    T->>T: Verifica se houve mudança de estado
+    alt Mudança de estado (ex: Desligado -> Ligado)
+        alt É Lâmpada
+            T->>C: TCP send(MSG_LAMPADA: devID, action=1)
+        else É Ar-Condicionado
+            T->>C: TCP send(MSG_AR_CONDICIONADO: devID, action=1, tempAlvo=22.0)
+        end
+        activate C
+        C->>C: Executa acionamento físico / display no terminal
+        C->>T: TCP send(MSG_STATUS: devID, status=ACAO_EXECUTADA)
+        deactivate C
+        T->>T: Log "Ação executada com sucesso"
+        T->>T: Retorna para espera na fila (WaitQueue)
+    else Mesmo estado atual
+        T->>T: Descarta sem tráfego de rede
+    end
+    deactivate T

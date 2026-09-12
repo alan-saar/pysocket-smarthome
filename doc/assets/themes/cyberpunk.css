@@ -1,0 +1,191 @@
+/* ==========================================================================
+   Cyberpunk Theme for Mermaid Diagrams (Smart Home IoT Project)
+   Palette: Deep Void Navy (#030a16), Cyber Neon Cyan (#00f3ff / #00e1ff),
+            Electric Glow and High-Contrast White Text (#ffffff)
+   ========================================================================== */
+
+body {
+    background-color: #030a16;
+    font-family: 'Segoe UI', Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Canvas Background with radial lighting */
+svg {
+    background: radial-gradient(circle at 50% 50%, #07192e 0%, #030a16 100%) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Flowchart Nodes (Terminals, Actions, Subgraphs)
+   -------------------------------------------------------------------------- */
+.node rect, .node circle, .node ellipse, .node polygon, .node path {
+    fill: #021424 !important;
+    stroke: #00f3ff !important;
+    stroke-width: 2.2px !important;
+    filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.95)) drop-shadow(0 0 3px rgba(0, 243, 255, 1)) !important;
+}
+
+/* Node text styling */
+.node .label, .node text, .label text, .nodeLabel, .nodeLabel p, .node .label p, span.nodeLabel, span.nodeLabel p {
+    fill: #ffffff !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    text-shadow: 0 0 8px rgba(0, 243, 255, 0.8), 0 0 2px #00f3ff !important;
+}
+
+/* Flowchart Edges and Links */
+.edgePath .path, .flowchart-link {
+    stroke: #00e1ff !important;
+    stroke-width: 2.2px !important;
+    filter: drop-shadow(0 0 6px rgba(0, 225, 255, 0.8)) !important;
+}
+
+/* Arrow heads */
+.marker, marker path, #flowchart-pointEnd, #flowchart-circleEnd, #flowchart-crossEnd, .arrowMarkerPath, [id$="-pointEnd"] path {
+    fill: #00e1ff !important;
+    stroke: #00e1ff !important;
+}
+
+/* Edge labels */
+.labelBkg, .edgeLabel, .edgeLabel p, .edgeLabel span {
+    background-color: #030e1a !important;
+    background: #030e1a !important;
+    color: #00f3ff !important;
+    fill: #00f3ff !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    border-radius: 4px !important;
+}
+.edgeLabel rect {
+    fill: #030e1a !important;
+    opacity: 0.95 !important;
+}
+.edgeLabel p {
+    padding: 2px 6px !important;
+    text-shadow: 0 0 6px rgba(0, 243, 255, 0.6) !important;
+}
+
+/* Subgraphs / Clusters */
+.cluster rect {
+    fill: #04101e !important;
+    stroke: #0088aa !important;
+    stroke-width: 1.5px !important;
+    stroke-dasharray: 4, 4;
+    filter: drop-shadow(0 0 8px rgba(0, 136, 170, 0.4)) !important;
+}
+.cluster text, .cluster-label text, .cluster-label span, .cluster-label p {
+    fill: #00e1ff !important;
+    color: #00e1ff !important;
+    font-weight: bold !important;
+    font-size: 15px !important;
+    text-shadow: 0 0 6px rgba(0, 225, 255, 0.5) !important;
+}
+
+/* --------------------------------------------------------------------------
+   Sequence Diagrams
+   -------------------------------------------------------------------------- */
+
+/* Actor boxes (top and bottom) */
+.actor, .actor-box, rect.actor {
+    fill: #021424 !important;
+    stroke: #00f3ff !important;
+    stroke-width: 2px !important;
+    filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.9)) !important;
+}
+
+text.actor > tspan, .actor text, text.actor {
+    fill: #ffffff !important;
+    font-weight: bold !important;
+    text-shadow: 0 0 8px rgba(0, 243, 255, 0.8) !important;
+}
+
+/* Stick figure human actor */
+g.actor-man circle, g.actor-man line {
+    stroke: #00f3ff !important;
+    fill: #021424 !important;
+    stroke-width: 2px !important;
+    filter: drop-shadow(0 0 6px rgba(0, 243, 255, 0.8)) !important;
+}
+g.actor-man text tspan {
+    fill: #ffffff !important;
+    font-weight: bold !important;
+    text-shadow: 0 0 8px rgba(0, 243, 255, 0.8) !important;
+}
+
+/* Lifelines */
+.actor-line {
+    stroke: #007799 !important;
+    stroke-dasharray: 4, 4;
+}
+
+/* Message lines & arrows */
+.messageLine0, .messageLine1 {
+    stroke: #00f3ff !important;
+    stroke-width: 2px !important;
+    filter: drop-shadow(0 0 5px rgba(0, 243, 255, 0.7)) !important;
+}
+
+#arrowhead path, .sequenceDiagram marker path, [id$="-arrowhead"] path {
+    fill: #00f3ff !important;
+    stroke: #00f3ff !important;
+}
+
+.messageText {
+    fill: #e6ffff !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    text-shadow: 0 0 6px rgba(0, 243, 255, 0.5) !important;
+}
+
+/* Notes */
+.note {
+    fill: #051e33 !important;
+    stroke: #00f3ff !important;
+    stroke-width: 1.5px !important;
+    filter: drop-shadow(0 0 8px rgba(0, 243, 255, 0.6)) !important;
+}
+
+.noteText, .noteText > tspan {
+    fill: #d6faff !important;
+    font-weight: 600 !important;
+}
+
+/* Alt / Loop / Opt blocks */
+.labelBox {
+    fill: #041424 !important;
+    stroke: #00f3ff !important;
+    stroke-width: 1.5px !important;
+}
+
+.labelText, .labelText > tspan {
+    fill: #00f3ff !important;
+    font-weight: bold !important;
+}
+
+.loopText, .loopText > tspan, .sectionTitle, .sectionTitle > tspan {
+    fill: #00e1ff !important;
+    font-weight: bold !important;
+    text-shadow: 0 0 6px rgba(0, 225, 255, 0.6) !important;
+}
+
+.loopLine {
+    stroke: #00b4cc !important;
+    stroke-dasharray: 4, 4;
+}
+
+/* Activations */
+.activation0, .activation1, .activation2 {
+    fill: #00e1ff !important;
+    stroke: #00ffff !important;
+    filter: drop-shadow(0 0 8px rgba(0, 225, 255, 0.9)) !important;
+}
+
+/* Sequence numbers */
+.sequenceNumber {
+    fill: #030a16 !important;
+    font-weight: bold !important;
+}
+circle[id$="-sequencenumber"], marker[id$="-sequencenumber"] circle {
+    fill: #00f3ff !important;
+    stroke: #00f3ff !important;
+}

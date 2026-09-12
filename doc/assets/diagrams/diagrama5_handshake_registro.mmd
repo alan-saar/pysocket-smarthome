@@ -1,0 +1,70 @@
+%%{init: {
+  'theme': 'dark',
+  'themeVariables': {
+    'darkMode': true,
+    'background': '#030a16',
+    'primaryColor': '#021424',
+    'primaryTextColor': '#ffffff',
+    'primaryBorderColor': '#00f3ff',
+    'lineColor': '#00e1ff',
+    'actorBkg': '#021424',
+    'actorBorder': '#00f3ff',
+    'actorTextColor': '#ffffff',
+    'actorLineColor': '#007799',
+    'signalColor': '#00f3ff',
+    'signalTextColor': '#e6ffff',
+    'labelBoxBkgColor': '#041424',
+    'labelBoxBorderColor': '#00f3ff',
+    'labelTextColor': '#00f3ff',
+    'noteBkgColor': '#051e33',
+    'noteTextColor': '#d6faff',
+    'noteBorderColor': '#00f3ff',
+    'activationBkgColor': '#00e1ff',
+    'activationBorderColor': '#00ffff'
+  }
+}}%%
+sequenceDiagram
+    autonumber
+    actor U as Usuário
+    participant C as Novo Dispositivo Cliente
+    participant S as Servidor (Thread Principal)
+    participant T as DeviceThread (Dedicada)
+    participant Q as controlQueue
+    participant G as GeneralControl
+
+    U->>C: Inicia cliente (ex: Cliente_Lampada.py)
+    C->>S: TCP connect(IP, PORTA=5000)
+    S->>S: accept() -> Estabelece conexão TCP
+    S->>T: Inicia DeviceThread(connection, clientIP)
+    activate T
+
+    C->>T: TCP send(MSG_REGISTRO: tipoDispositivo)
+    T->>T: Valida tipo em dispositivos.txt
+    alt Tipo Não Suportado (Inválido)
+        T->>C: TCP send(MSG_STATUS: status=ERRO_DISPOSITIVO_NAO_SUPORTADO)
+        T->>T: connection.close()
+        C->>U: Exibe erro e finaliza execução
+    else Tipo Suportado (Válido)
+        T->>C: TCP send(MSG_LISTA_AMBIENTES: dicionário de cômodos)
+        C->>U: Exibe lista de ambientes disponíveis
+        U->>C: Seleciona ID do ambiente (ex: 1 = Sala)
+        C->>T: TCP send(MSG_SELECIONA_AMBIENTE: roomID=1)
+        T->>T: Valida roomID em ambientes.txt
+        alt Ambiente Inválido
+            T->>C: TCP send(MSG_STATUS: status=ERRO_AMBIENTE_INVALIDO)
+            T->>T: connection.close()
+        else Ambiente Válido
+            T->>T: NewID(lock) -> Gera ID sequencial thread-safe
+            T->>C: TCP send(MSG_STATUS: devID, status=DISPOSITIVO_REGISTRADO)
+            alt É Atuador (Lâmpada / Ar-Condicionado)
+                T->>Q: put(MonitorItem: devID, tipo, roomID, INCLUIR, filaPrivada)
+                T->>T: Entra em loop de espera na fila (WaitQueue)
+            else É Sensor (Presença / Termômetro)
+                T->>Q: put(MonitorItem: devID, tipo, roomID, INCLUIR_DISPOSITIVO)
+                T->>T: Entra em loop de recebimento de telemetria
+            end
+            Q->>G: Registra no ambiente e atualiza Monitor ASCII
+            C->>U: Exibe "Dispositivo registrado: ID = X"
+        end
+    end
+    deactivate T
